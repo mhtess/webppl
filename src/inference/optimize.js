@@ -124,17 +124,6 @@ module.exports = function(env) {
             if (options.checkGradients) {
               checkGradients(gradObj);
             }
-
-            if (options.clip || options.showGradNorm) {
-              var norm = paramStruct.norm(gradObj);
-              if (options.showGradNorm) {
-                console.log('L2 norm of gradient: ' + norm);
-              }
-              if (options.clip) {
-                paramStruct.clip(gradObj, options.clip, norm);
-              }
-            }
-
             if (options.verbose) {
               showProgress(i, objective);
             }
@@ -150,8 +139,17 @@ module.exports = function(env) {
             // Retrieve latest params from store
             return params.sync(function(paramsObj) {
 
-              // TODO: Add weight decay *before* clipping?
               decayWeights(gradObj, paramsObj);
+
+              if (options.clip || options.showGradNorm) {
+                var norm = paramStruct.norm(gradObj);
+                if (options.showGradNorm) {
+                  console.log('L2 norm of gradient: ' + norm);
+                }
+                if (options.clip) {
+                  paramStruct.clip(gradObj, options.clip, norm);
+                }
+              }
 
               // Update local copy of params
               optimizer(gradObj, paramsObj, i);
