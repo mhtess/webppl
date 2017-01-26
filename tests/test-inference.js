@@ -662,6 +662,16 @@ var tests = [
           onlyMAP: true,
           verbose: false
         }
+      },
+      weightDecayL2: {
+        mean: { tol: 0.01 },
+        args: {
+          samples: 1,
+          steps: 1000,
+          optMethod: {gd: {stepSize: 0.1}},
+          weightDecay: {l2: {strength: 1}},
+          verbose: false
+        }
       }
     }
   }

@@ -49,6 +49,16 @@ Optimize
 
       Default: ``ELBO``
 
+   .. describe:: weightDecay
+
+      When a numeric value is given it specifies the strength of an L2
+      penalty applied to all parameters during optimization.
+
+      A value of ``false`` indicates that weight decay should not be
+      used.
+
+      Default: ``false``
+
    .. describe:: verbose
 
       Default: ``true``

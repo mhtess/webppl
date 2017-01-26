@@ -10,6 +10,7 @@ var util = require('../util');
 var optMethods = require('adnn/opt');
 var paramStruct = require('../params/struct');
 var params = require('../params/params');
+var weightDecay = require('./weightDecay');
 var fs = require('fs');
 var nodeUtil = require('util');
 
@@ -44,6 +45,7 @@ module.exports = function(env) {
       estimator: 'ELBO',
       steps: 1,
       clip: false,              // false = no clipping, otherwise specifies threshold.
+      weightDecay: false,
       showGradNorm: false,
       checkGradients: true,
       verbose: true,
@@ -108,6 +110,9 @@ module.exports = function(env) {
       checkpointParams = _.throttle(saveParams, options.checkpointParamsThrottle, { trailing: false });
     }
 
+    // Weight decay.
+    var decayWeights = weightDecay.parseOptions(options.weightDecay, options.verbose);
+
     // Main loop.
     return util.cpsLoop(
         options.steps,
@@ -144,6 +149,9 @@ module.exports = function(env) {
 
             // Retrieve latest params from store
             return params.sync(function(paramsObj) {
+
+              // TODO: Add weight decay *before* clipping?
+              decayWeights(gradObj, paramsObj);
 
               // Update local copy of params
               optimizer(gradObj, paramsObj, i);
