@@ -24,12 +24,10 @@ function guideCoroutine(env) {
     sample: sampleNotAllowed,
     factor: factorNotAllowed,
     incrementalize: env.defaultCoroutine.incrementalize,
+    coroutine: env.coroutine,
     // Copy the entry address from the current coroutine so that
     // parameter names continue to be relative to it.
     a: env.coroutine.a,
-    // Use paramsSeen of the current coroutine so that params are
-    // tracked correctly.
-    paramsSeen: env.coroutine.paramsSeen,
     // A flag used when creating parameters to check whether we're in
     // a guide thunk. Note that this does the right thing if Infer is
     // used within a guide. This can be checked from a webppl program

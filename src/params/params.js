@@ -93,7 +93,7 @@ function fetch(name, env) {
   }
 
   var paramTable = get();
-  var paramsSeen = env.coroutine.paramsSeen;
+  var paramsSeen = getParamsSeen(env);
 
   // If we're outside of optimization, just return the value of the
   // parameter, unlifted.
@@ -114,6 +114,15 @@ function fetch(name, env) {
     paramsSeen[name] = [param];
     return param;
   }
+}
+
+function getParamsSeen(env) {
+  function walk(coroutine) {
+    return _.has(coroutine, 'paramsSeen') ? coroutine.paramsSeen :
+           _.has(coroutine, 'coroutine') ? walk(coroutine.coroutine) :
+           null;
+  }
+  return walk(env.coroutine);
 }
 
 module.exports = {
