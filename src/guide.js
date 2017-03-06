@@ -103,7 +103,7 @@ function independent(targetDist, sampleAddress, env) {
   // avoid collisions when the distribution type changes between
   // calls. (As a result of the distribution passed depending on a
   // random choice.)
-  var relativeAddress = util.relativizeAddress(env, sampleAddress);
+  var relativeAddress = util.relativizeAddress(params.baseAddress(env), sampleAddress);
   var baseName = relativeAddress + '$mf$' + targetDist.meta.name + '$';
 
   var distSpec = spec(targetDist);

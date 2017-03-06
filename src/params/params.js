@@ -125,6 +125,21 @@ function getParamsSeen(env) {
   return walk(env.coroutine);
 }
 
+// The base address used when automatically generating parameter names
+// based on relative stack addresses.
+function baseAddress(env) {
+  function walk(coroutine) {
+    return isEnumerate(coroutine) ? walk(coroutine.coroutine) : coroutine;
+  }
+  var coroutine = walk(env.coroutine);
+  assert.ok(_.has(coroutine, 'a'), 'Entry address not saved on coroutine.');
+  return coroutine.a;
+}
+
+function isEnumerate(coroutine) {
+  return Object.getPrototypeOf(coroutine).constructor.name === 'Enumerate';
+}
+
 module.exports = {
   get: get,
   set: set,
@@ -134,5 +149,6 @@ module.exports = {
   sync: sync,
   exists: exists,
   create: create,
-  fetch: fetch
+  fetch: fetch,
+  baseAddress: baseAddress
 };
