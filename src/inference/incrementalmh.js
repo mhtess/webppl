@@ -9,6 +9,7 @@ var util = require('../util');
 var Hashtable = require('../hashtable').Hashtable
 var Query = require('../query').Query;
 var CountAggregator = require('../aggregation/CountAggregator');
+var StreamingAggregator = require('../aggregation/StreamingAggregator');
 
 module.exports = function(env) {
 
@@ -788,6 +789,7 @@ module.exports = function(env) {
     var iterFuseLength = opts.cacheIterFuseLength === undefined ? 10 : opts.cacheIterFuseLength;
     var burn = opts.burn === undefined ? 0 : opts.burn;
     var verboseLag = opts.verboseLag === undefined ? 1 : opts.verboseLag;
+    var stream = opts.stream === undefined ? false : opts.stream;
 
     // Doing a full re-run doesn't really jive with the heuristic we use for adaptive
     //    caching, so disable adaptation in this case.
@@ -804,7 +806,9 @@ module.exports = function(env) {
     this.s = s;
     this.a = a;
 
-    this.aggregator = new CountAggregator(onlyMAP);
+    this.aggregator = stream ?
+        new StreamingAggregator('stream.json') :
+        new CountAggregator(onlyMAP);
 
     this.totalIterations = this.iterations;
     this.acceptedProps = 0;
@@ -894,6 +898,8 @@ module.exports = function(env) {
           } else {
             console.log('IncrementalMH burnin ' + iternum + ' / ' + this.burn);
           }
+          console.log('rss: ' + process.memoryUsage().rss / Math.pow(1024, 2));
+          console.log('time: ' + Date.now());
         }
         // Continue proposing as normal
         this.iterations--;
