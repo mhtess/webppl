@@ -23,7 +23,23 @@ StreamingAggregator.prototype.add = function(value, score) {
   if (this.count > 0) {
     this.append(',');
   }
-  this.append(JSON.stringify({value: value, score: score}));
+  var sLst = _.toPairs(value);
+  for (var i = 0; i < sLst.length; i++) {
+    var prams = sLst[i][0].split(',');
+    var val = sLst[i][1]
+    this.append(JSON.stringify({
+      type: prams[0],
+      param: prams[1],
+      property: prams[2],
+      category: prams[3],
+      val: val
+    }));
+    if (i < sLst.length - 1) { this.append(','); }
+  };
+  // this.append(
+  //   JSON.stringify(value)
+  //   // JSON.stringify({value: value, score: score})
+  // );
   if (score > this.max.score) {
     this.max.value = value;
     this.max.score = score;

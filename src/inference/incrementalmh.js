@@ -807,7 +807,7 @@ module.exports = function(env) {
     this.a = a;
 
     this.aggregator = stream ?
-        new StreamingAggregator('stream.json') :
+        new StreamingAggregator(stream) :
         new CountAggregator(onlyMAP);
 
     this.totalIterations = this.iterations;
