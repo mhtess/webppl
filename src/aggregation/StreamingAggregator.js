@@ -51,7 +51,7 @@ StreamingAggregator.prototype.add = function(value, score) {
 };
 
 StreamingAggregator.prototype.toDist = function() {
-  this.append('\n');
+  // this.append('\n');
   fs.closeSync(this.handle);
   return new dists.SampleBasedMarginal({
     samples: [this.max],
