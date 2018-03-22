@@ -14,7 +14,8 @@ module.exports = function(env) {
     options = util.mergeDefaults(options, {
       adRequired: false,
       permissive: false,
-      discreteOnly: false
+      discreteOnly: false,
+      factorCoeff: 1
     }, 'MH kernel');
     return function(cont, oldTrace, runOpts) {
       return new MHKernel(cont, oldTrace, options, runOpts).run();
@@ -24,6 +25,7 @@ module.exports = function(env) {
   function MHKernel(cont, oldTrace, options, runOpts) {
     this.discreteOnly = options.discreteOnly;
     this.adRequired = options.adRequired;
+    this.factorCoeff = options.factorCoeff;
     if (!options.permissive) {
       assert.notStrictEqual(oldTrace.score, -Infinity);
     }
@@ -137,7 +139,7 @@ module.exports = function(env) {
       assert(this.trace.k);
       assert(!this.trace.isComplete());
     }
-    var prob = this.acceptProb(this.trace, this.oldTrace);
+    var prob = this.acceptProb(this.trace, this.oldTrace, this.factorCoeff);
     var accept = util.random() < prob;
     return this.finish(accept ? this.trace : this.oldTrace, accept);
   };
@@ -206,7 +208,15 @@ module.exports = function(env) {
 
     var fw = this.transitionProb(oldTrace, trace, this.fwdProposalDist);
     var bw = this.transitionProb(trace, oldTrace, this.revProposalDist);
-    var p = Math.exp(ad.value(trace.score) - ad.value(oldTrace.score) + bw - fw);
+    // NOTE: changed from original by wrapping everything with ad.value()
+    var newTraceScore = ad.value(trace.sampleScore);
+    var oldTraceScore = ad.value(oldTrace.sampleScore);
+    if (factorCoeff > 0) {
+      newTraceScore += factorCoeff*(ad.value(trace.score) - ad.value(trace.sampleScore));
+      oldTraceScore += factorCoeff*(ad.value(oldTrace.score) - ad.value(oldTrace.sampleScore));
+    }
+    var p = Math.exp(newTraceScore - oldTraceScore + bw - fw);
+    // var p = Math.exp(ad.value(trace.score) - ad.value(oldTrace.score) + bw - fw);
     assert(!isNaN(p));
     return Math.min(1, p);
   };
